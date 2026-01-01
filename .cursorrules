@@ -1,0 +1,46 @@
+# My Sea - Gamified Scuba Logbook App
+
+## Project Identity
+Name: My Sea (나만의 바다)
+Vibe: Cute, Cozy, Deep Ocean, Professional yet Playful
+Core Value: Emotional Archiving & Gamification
+
+## Tech Stack
+- Framework: React Native (Expo SDK 51)
+- Router: Expo Router (File-based routing)
+- Styling: NativeWind (Tailwind CSS)
+- Icons: Lucide React Native
+- Backend: Supabase (TypeScript definitions)
+- State: Zustand
+- Animation: React Native Reanimated
+- Charts: react-native-gifted-charts
+
+## Coding Standards
+- Components: Use Functional Components with named exports
+- Styling: ALWAYS use Tailwind classes via className
+- Data Fetching: Use React Query with Supabase
+- Error Handling: Use toast notifications
+- Types: Strict TypeScript usage. No `any`
+
+## Design System Tokens
+Colors:
+- bg-primary: #E0F7FA (Pale Cyan - 전체 배경)
+- text-main: #263238 (Dark Blue Grey - 본문)
+- text-sub: #78909C (Blue Grey - 보조)
+- secondary: #0288D1 (Deep Sky Blue - 강조)
+- accent: #FFAB91 (Soft Coral - 포인트)
+- surface: #FFFFFF (White - 카드)
+
+Spacing: Use generous padding (p-4, p-6)
+Border Radius: Use rounded-2xl or rounded-3xl
+
+## Specific Behaviors
+- When generating lists, implement FlashList for performance
+- When handling images, use expo-image with blurhash
+- Keep UI consistent with "Cute & Cozy" ocean theme
+- Use emojis thoughtfully for visual appeal (🐠🐢🌊🤿)
+
+## Korean Language Support
+- Primary language is Korean
+- Use friendly, casual tone (반말 X, 존댓말 O)
+- Date format: YYYY년 MM월 DD일 or YYYY-MM-DD

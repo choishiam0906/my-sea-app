@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "My Sea",
+    "slug": "my-sea-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "mysea",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E0F7FA"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mysea.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#E0F7FA"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.mysea.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "앱에서 다이빙 사진을 선택할 수 있도록 사진 접근 권한이 필요합니다.",
+          "cameraPermission": "앱에서 해양 생물 사진을 촬영할 수 있도록 카메라 접근 권한이 필요합니다."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
