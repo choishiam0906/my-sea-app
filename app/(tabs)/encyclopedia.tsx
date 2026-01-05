@@ -5,80 +5,16 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
-  Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
-import { Search, Filter } from 'lucide-react-native';
+import { Search } from 'lucide-react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useRef, useCallback, useMemo } from 'react';
-import { Card, Input } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { useSpeciesStore } from '@/store/useSpeciesStore';
 import { MarineCategories, Colors } from '@/constants/theme';
 import type { MarineSpecies } from '@/types/database';
-
-// Sample data for demo
-const sampleSpecies: MarineSpecies[] = [
-  {
-    id: '1',
-    name_kr: '흰동가리',
-    name_en: 'Clownfish',
-    scientific_name: 'Amphiprioninae',
-    category: 'Fish',
-    description: '말미잘과 공생하는 작고 귀여운 열대어입니다.',
-    size_range: '10-15cm',
-    season: '연중',
-    depth_range: '1-15m',
-    habitat: '산호초, 말미잘',
-    image_url: '',
-    rarity: 'Common',
-    is_dangerous: false,
-  },
-  {
-    id: '2',
-    name_kr: '바다거북',
-    name_en: 'Sea Turtle',
-    scientific_name: 'Chelonioidea',
-    category: 'Reptile',
-    description: '우아하게 헤엄치는 바다의 장수 동물입니다.',
-    size_range: '60-180cm',
-    season: '5-10월',
-    depth_range: '1-40m',
-    habitat: '산호초, 해초지대',
-    image_url: '',
-    rarity: 'Rare',
-    is_dangerous: false,
-  },
-  {
-    id: '3',
-    name_kr: '문어',
-    name_en: 'Octopus',
-    scientific_name: 'Octopoda',
-    category: 'Mollusk',
-    description: '8개의 다리와 뛰어난 지능을 가진 연체동물입니다.',
-    size_range: '30-100cm',
-    season: '연중',
-    depth_range: '5-50m',
-    habitat: '암초, 동굴',
-    image_url: '',
-    rarity: 'Uncommon',
-    is_dangerous: false,
-  },
-  {
-    id: '4',
-    name_kr: '해파리',
-    name_en: 'Jellyfish',
-    scientific_name: 'Scyphozoa',
-    category: 'Other',
-    description: '투명한 몸체로 물속을 떠다니는 신비로운 생물입니다.',
-    size_range: '5-100cm',
-    season: '여름',
-    depth_range: '0-30m',
-    habitat: '개방 수역',
-    image_url: '',
-    rarity: 'Common',
-    is_dangerous: true,
-  },
-];
 
 const getEmojiForCategory = (category: string) => {
   const emojiMap: Record<string, string> = {
@@ -94,31 +30,25 @@ const getEmojiForCategory = (category: string) => {
 };
 
 export default function EncyclopediaScreen() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const {
+    species,
+    filteredSpecies,
+    selectedCategory,
+    searchQuery,
+    isLoading,
+    fetchSpecies,
+    setCategory,
+    setSearchQuery
+  } = useSpeciesStore();
+
   const [selectedSpecies, setSelectedSpecies] = useState<MarineSpecies | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
+  useEffect(() => {
+    fetchSpecies();
+  }, []);
+
   const snapPoints = useMemo(() => ['50%', '85%'], []);
-
-  const filteredSpecies = useMemo(() => {
-    let result = sampleSpecies;
-
-    if (selectedCategory !== 'All') {
-      result = result.filter((s) => s.category === selectedCategory);
-    }
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (s) =>
-          s.name_kr.includes(query) ||
-          s.name_en.toLowerCase().includes(query)
-      );
-    }
-
-    return result;
-  }, [selectedCategory, searchQuery]);
 
   const handleOpenSheet = useCallback((species: MarineSpecies) => {
     setSelectedSpecies(species);
@@ -153,6 +83,15 @@ export default function EncyclopediaScreen() {
     </TouchableOpacity>
   );
 
+  if (isLoading && species.length === 0) {
+    return (
+      <View className="flex-1 bg-primary items-center justify-center">
+        <ActivityIndicator size="large" color="#0288D1" />
+        <Text className="text-text-sub mt-4">해양 생물 도감을 불러오는 중...</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-primary">
       {/* Search Bar */}
@@ -177,7 +116,7 @@ export default function EncyclopediaScreen() {
         contentContainerStyle={{ paddingRight: 16 }}
       >
         <TouchableOpacity
-          onPress={() => setSelectedCategory('All')}
+          onPress={() => setCategory('All')}
           className={`mr-2 px-4 py-2 rounded-full ${
             selectedCategory === 'All' ? 'bg-secondary' : 'bg-surface'
           }`}
@@ -193,7 +132,7 @@ export default function EncyclopediaScreen() {
         {MarineCategories.map((cat) => (
           <TouchableOpacity
             key={cat.id}
-            onPress={() => setSelectedCategory(cat.id)}
+            onPress={() => setCategory(cat.id)}
             className={`mr-2 px-4 py-2 rounded-full ${
               selectedCategory === cat.id ? 'bg-secondary' : 'bg-surface'
             }`}

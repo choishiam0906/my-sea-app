@@ -1,16 +1,21 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Plus, Award, TrendingUp, Calendar } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Card, Button } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useDiveStore } from '@/store/useDiveStore';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { profile } = useAuthStore();
-  const { dives } = useDiveStore();
+  const { profile, fetchProfile } = useAuthStore();
+  const { dives, fetchDives } = useDiveStore();
+
+  useEffect(() => {
+    fetchProfile();
+    fetchDives();
+  }, []);
 
   const totalDives = dives.length;
   const totalTime = dives.reduce((acc, dive) => acc + (dive.duration || 0), 0);

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Plus, Calendar, MapPin, Clock, ArrowDown } from 'lucide-react-native';
@@ -12,65 +12,26 @@ import { Card } from '@/components/ui';
 import { useDiveStore } from '@/store/useDiveStore';
 import type { Dive } from '@/types/database';
 
-// Sample data for demo
-const sampleDives: Dive[] = [
-  {
-    id: '1',
-    user_id: '1',
-    date: '2025-12-28',
-    site_name: '제주 서귀포 문섬',
-    location: '제주도',
-    depth_max: 25,
-    depth_avg: 18,
-    duration: 48,
-    visibility: 15,
-    notes: '멋진 연산호 군락을 봤어요!',
-    coordinates: null,
-    created_at: '',
-    updated_at: '',
-  },
-  {
-    id: '2',
-    user_id: '1',
-    date: '2025-12-15',
-    site_name: '울릉도 행남등대',
-    location: '울릉도',
-    depth_max: 32,
-    depth_avg: 22,
-    duration: 42,
-    visibility: 20,
-    notes: '투명한 물에서 환상적인 다이빙!',
-    coordinates: null,
-    created_at: '',
-    updated_at: '',
-  },
-  {
-    id: '3',
-    user_id: '1',
-    date: '2025-12-01',
-    site_name: '통영 비진도',
-    location: '통영',
-    depth_max: 18,
-    depth_avg: 12,
-    duration: 55,
-    visibility: 8,
-    notes: '아기 문어를 발견했어요!',
-    coordinates: null,
-    created_at: '',
-    updated_at: '',
-  },
-];
-
 export default function LogsScreen() {
   const router = useRouter();
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const { dives, isLoading, fetchDives } = useDiveStore();
 
-  const sortedDives = [...sampleDives].sort((a, b) => {
+  useEffect(() => {
+    fetchDives();
+  }, []);
+
+  const sortedDives = [...dives].sort((a, b) => {
     if (sortOrder === 'newest') {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     }
     return new Date(a.date).getTime() - new Date(b.date).getTime();
   });
+
+  // 통계 계산
+  const totalDives = dives.length;
+  const totalDuration = dives.reduce((acc, d) => acc + (d.duration || 0), 0);
+  const maxDepth = dives.length > 0 ? Math.max(...dives.map((d) => d.depth_max || 0)) : 0;
 
   const renderDiveCard = ({ item }: { item: Dive }) => (
     <TouchableOpacity
@@ -131,6 +92,15 @@ export default function LogsScreen() {
     </TouchableOpacity>
   );
 
+  if (isLoading && dives.length === 0) {
+    return (
+      <View className="flex-1 bg-primary items-center justify-center">
+        <ActivityIndicator size="large" color="#0288D1" />
+        <Text className="text-text-sub mt-4">다이브 로그를 불러오는 중...</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-primary">
       {/* Header */}
@@ -152,21 +122,21 @@ export default function LogsScreen() {
         <Card className="flex-row justify-around py-4">
           <View className="items-center">
             <Text className="text-3xl font-bold text-secondary">
-              {sampleDives.length}
+              {totalDives}
             </Text>
             <Text className="text-text-sub text-sm">총 다이브</Text>
           </View>
           <View className="w-px h-12 bg-gray-200" />
           <View className="items-center">
             <Text className="text-3xl font-bold text-secondary">
-              {sampleDives.reduce((acc, d) => acc + d.duration, 0)}분
+              {totalDuration}분
             </Text>
             <Text className="text-text-sub text-sm">총 수중시간</Text>
           </View>
           <View className="w-px h-12 bg-gray-200" />
           <View className="items-center">
             <Text className="text-3xl font-bold text-secondary">
-              {Math.max(...sampleDives.map((d) => d.depth_max))}m
+              {maxDepth}m
             </Text>
             <Text className="text-text-sub text-sm">최대수심</Text>
           </View>

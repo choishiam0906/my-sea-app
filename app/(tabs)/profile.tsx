@@ -1,10 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
-  Settings,
-  Award,
-  Heart,
   Share2,
   HelpCircle,
   LogOut,
@@ -13,13 +10,14 @@ import {
   Moon,
   Globe,
 } from 'lucide-react-native';
-import { Card, Button } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useDiveStore } from '@/store/useDiveStore';
 
-// Sample badges for demo
+// 뱃지 데이터 (추후 DB에서 가져올 예정)
 const sampleBadges = [
   { id: '1', name: '첫 다이브', icon: '🏊', earned: true },
-  { id: '2', name: '10회 달성', icon: '🎯', earned: true },
+  { id: '2', name: '10회 달성', icon: '🎯', earned: false },
   { id: '3', name: '심해 탐험가', icon: '🌊', earned: false },
   { id: '4', name: '생물 수집가', icon: '🐠', earned: false },
   { id: '5', name: '7일 연속', icon: '🔥', earned: false },
@@ -28,7 +26,21 @@ const sampleBadges = [
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { profile, signOut } = useAuthStore();
+  const { profile, signOut, fetchProfile } = useAuthStore();
+  const { dives, fetchDives } = useDiveStore();
+
+  useEffect(() => {
+    fetchProfile();
+    fetchDives();
+  }, []);
+
+  // 실제 통계 계산
+  const totalDives = dives.length;
+  const earnedBadges = sampleBadges.filter(b => {
+    if (b.id === '1') return totalDives >= 1;
+    if (b.id === '2') return totalDives >= 10;
+    return false;
+  }).length;
 
   const handleSignOut = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠어요?', [
@@ -36,9 +48,20 @@ export default function ProfileScreen() {
       {
         text: '로그아웃',
         style: 'destructive',
-        onPress: () => signOut(),
+        onPress: () => {
+          signOut();
+          router.replace('/(auth)/login');
+        },
       },
     ]);
+  };
+
+  // 레벨 타이틀 계산
+  const getLevelTitle = (level: number) => {
+    if (level >= 10) return '마스터 다이버';
+    if (level >= 7) return '숙련 다이버';
+    if (level >= 4) return '중급 다이버';
+    return '초보 다이버';
   };
 
   const menuItems = [
@@ -69,24 +92,36 @@ export default function ProfileScreen() {
     },
   ];
 
+  // 뱃지 획득 여부 동적 계산
+  const badgesWithStatus = sampleBadges.map(badge => ({
+    ...badge,
+    earned: badge.id === '1' ? totalDives >= 1 :
+            badge.id === '2' ? totalDives >= 10 : false
+  }));
+
   return (
     <ScrollView className="flex-1 bg-primary">
       {/* Profile Header */}
       <View className="items-center pt-6 pb-8">
-        <View className="w-24 h-24 rounded-full bg-surface items-center justify-center shadow-lg mb-4">
+        <View
+          className="w-24 h-24 rounded-full bg-surface items-center justify-center shadow-lg mb-4"
+          style={{ backgroundColor: profile?.buddy_color ? profile.buddy_color + '30' : '#E0F7FA' }}
+        >
           <Text className="text-5xl">🦭</Text>
         </View>
         <Text className="text-2xl font-bold text-text-main">
           {profile?.buddy_name || '바다친구'}
         </Text>
-        <Text className="text-text-sub">@{profile?.username || 'diver'}</Text>
+        <Text className="text-text-sub">@{profile?.username?.split('@')[0] || 'diver'}</Text>
 
         {/* Level Badge */}
         <View className="flex-row items-center mt-3 bg-surface px-4 py-2 rounded-full shadow-sm">
           <View className="w-8 h-8 rounded-full bg-accent items-center justify-center mr-2">
             <Text className="text-white font-bold">{profile?.level || 1}</Text>
           </View>
-          <Text className="text-text-main font-medium">초보 다이버</Text>
+          <Text className="text-text-main font-medium">
+            {getLevelTitle(profile?.level || 1)}
+          </Text>
         </View>
       </View>
 
@@ -94,17 +129,17 @@ export default function ProfileScreen() {
       <View className="px-4 mb-6">
         <Card className="flex-row justify-around py-4">
           <View className="items-center">
-            <Text className="text-2xl font-bold text-secondary">23</Text>
+            <Text className="text-2xl font-bold text-secondary">{totalDives}</Text>
             <Text className="text-text-sub text-sm">다이브</Text>
           </View>
           <View className="w-px h-12 bg-gray-200" />
           <View className="items-center">
-            <Text className="text-2xl font-bold text-secondary">12</Text>
+            <Text className="text-2xl font-bold text-secondary">0</Text>
             <Text className="text-text-sub text-sm">발견 생물</Text>
           </View>
           <View className="w-px h-12 bg-gray-200" />
           <View className="items-center">
-            <Text className="text-2xl font-bold text-secondary">2</Text>
+            <Text className="text-2xl font-bold text-secondary">{earnedBadges}</Text>
             <Text className="text-text-sub text-sm">뱃지</Text>
           </View>
         </Card>
@@ -123,7 +158,7 @@ export default function ProfileScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingRight: 16 }}
         >
-          {sampleBadges.map((badge) => (
+          {badgesWithStatus.map((badge) => (
             <View
               key={badge.id}
               className={`w-20 h-24 mr-3 rounded-2xl items-center justify-center ${

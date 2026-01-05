@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 
-const supabaseUrl = 'https://tultfvpdwjvrzktbbuyn.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1bHRmdnBkd2p2cnprdGJidXluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyNTEzNTMsImV4cCI6MjA4MjgyNzM1M30.Upb-PXDX3n_BDkxQ3YfgsQV2AzL6QWD9svFWBC8ibtk';
+const supabaseUrl = 'https://wrrgshlogiokeygsnqhf.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycmdzaGxvZ2lva2V5Z3NucWhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc1NjE4OTYsImV4cCI6MjA4MzEzNzg5Nn0.7Xl5XPQGvbF_hiCP4YhKCpVydAC-CQiCkc9hqPPPU3o';
 
 // Storage adapter for web and native
 const storage = Platform.OS === 'web'
