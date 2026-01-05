@@ -68,3 +68,45 @@ export const getSession = async () => {
   const { data: { session } } = await supabase.auth.getSession();
   return session;
 };
+
+// OAuth Social Login helpers
+type OAuthProvider = 'google' | 'kakao' | 'naver';
+
+export const signInWithOAuth = async (provider: OAuthProvider) => {
+  const redirectUrl = Platform.OS === 'web'
+    ? window.location.origin
+    : 'mydeepedive://auth/callback';
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: provider === 'naver' ? 'kakao' : provider, // Naver uses custom OIDC, fallback for now
+    options: {
+      redirectTo: redirectUrl,
+      skipBrowserRedirect: Platform.OS !== 'web',
+    },
+  });
+  return { data, error };
+};
+
+export const signInWithGoogle = async () => {
+  return signInWithOAuth('google');
+};
+
+export const signInWithKakao = async () => {
+  return signInWithOAuth('kakao');
+};
+
+// Note: Naver requires custom OIDC setup in Supabase
+export const signInWithNaver = async () => {
+  // Naver OAuth is handled through custom OIDC provider
+  const redirectUrl = Platform.OS === 'web'
+    ? window.location.origin
+    : 'mydeepedive://auth/callback';
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'kakao', // Placeholder - will need custom OIDC setup for Naver
+    options: {
+      redirectTo: redirectUrl,
+    },
+  });
+  return { data, error };
+};
