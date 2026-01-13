@@ -1,15 +1,16 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "build/web/**",
-      "use": "@vercel/static"
-    }
-  ],
+  "outputDirectory": "build/web",
   "routes": [
     {
+      "src": "^/(.*)$",
+      "dest": "/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/build/web/$1"
+      "dest": "/index.html"
     }
   ]
 }
