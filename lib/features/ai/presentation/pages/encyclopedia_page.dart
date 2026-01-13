@@ -13,8 +13,7 @@ class EncyclopediaPage extends ConsumerStatefulWidget {
 class _EncyclopediaPageState extends ConsumerState<EncyclopediaPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _searchQuery = '';
-  String _selectedRarity = 'all';
+  String _selectedCategory = 'all';
 
   @override
   void initState() {
@@ -31,133 +30,222 @@ class _EncyclopediaPageState extends ConsumerState<EncyclopediaPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('해양 도감'),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.deepOceanBlue,
-          unselectedLabelColor: AppColors.grey500,
-          indicatorColor: AppColors.deepOceanBlue,
-          tabs: const [
-            Tab(text: '전체 도감'),
-            Tab(text: '내 컬렉션'),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppColors.skyGradient,
         ),
-      ),
-      body: Column(
-        children: [
-          // Search and Filter
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Search Bar
-                TextField(
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                  decoration: InputDecoration(
-                    hintText: '해양 생물 검색',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom App Bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 18,
+                          color: AppColors.grey700,
+                        ),
+                      ),
                     ),
-                    filled: true,
-                    fillColor: AppColors.grey100,
-                  ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        '해양 도감',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.grey800,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.search,
+                        size: 22,
+                        color: AppColors.grey700,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                // Rarity Filter
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _RarityChip(
-                        label: '전체',
-                        value: 'all',
-                        selected: _selectedRarity == 'all',
-                        onSelected: () => setState(() => _selectedRarity = 'all'),
-                      ),
-                      const SizedBox(width: 8),
-                      _RarityChip(
-                        label: '일반',
-                        value: 'common',
-                        color: AppColors.rarityCommon,
-                        selected: _selectedRarity == 'common',
-                        onSelected: () => setState(() => _selectedRarity = 'common'),
-                      ),
-                      const SizedBox(width: 8),
-                      _RarityChip(
-                        label: '특별',
-                        value: 'uncommon',
-                        color: AppColors.rarityUncommon,
-                        selected: _selectedRarity == 'uncommon',
-                        onSelected: () => setState(() => _selectedRarity = 'uncommon'),
-                      ),
-                      const SizedBox(width: 8),
-                      _RarityChip(
-                        label: '희귀',
-                        value: 'rare',
-                        color: AppColors.rarityRare,
-                        selected: _selectedRarity == 'rare',
-                        onSelected: () => setState(() => _selectedRarity = 'rare'),
-                      ),
-                      const SizedBox(width: 8),
-                      _RarityChip(
-                        label: '전설',
-                        value: 'legendary',
-                        color: AppColors.rarityLegendary,
-                        selected: _selectedRarity == 'legendary',
-                        onSelected: () => setState(() => _selectedRarity = 'legendary'),
+              ),
+              const SizedBox(height: 20),
+
+              // Tab Bar
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.oceanBlue.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.oceanBlue, AppColors.skyBlue],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.oceanBlue.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
+                  labelColor: AppColors.white,
+                  unselectedLabelColor: AppColors.grey500,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                  dividerColor: Colors.transparent,
+                  tabs: const [
+                    Tab(text: '전체 도감'),
+                    Tab(text: '내 컬렉션'),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+              const SizedBox(height: 16),
 
-          // Content
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _AllSpeciesGrid(),
-                _MyCollectionGrid(),
-              ],
-            ),
+              // Category Filter
+              Container(
+                height: 40,
+                margin: const EdgeInsets.only(left: 20),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _CategoryChip(
+                      label: '전체',
+                      icon: '🌊',
+                      isSelected: _selectedCategory == 'all',
+                      onTap: () => setState(() => _selectedCategory = 'all'),
+                    ),
+                    _CategoryChip(
+                      label: '어류',
+                      icon: '🐟',
+                      isSelected: _selectedCategory == 'fish',
+                      onTap: () => setState(() => _selectedCategory = 'fish'),
+                    ),
+                    _CategoryChip(
+                      label: '갑각류',
+                      icon: '🦀',
+                      isSelected: _selectedCategory == 'crust',
+                      onTap: () => setState(() => _selectedCategory = 'crust'),
+                    ),
+                    _CategoryChip(
+                      label: '연체동물',
+                      icon: '🐙',
+                      isSelected: _selectedCategory == 'mollusc',
+                      onTap: () => setState(() => _selectedCategory = 'mollusc'),
+                    ),
+                    _CategoryChip(
+                      label: '산호',
+                      icon: '🪸',
+                      isSelected: _selectedCategory == 'coral',
+                      onTap: () => setState(() => _selectedCategory = 'coral'),
+                    ),
+                    const SizedBox(width: 20),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Content
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _AllSpeciesGrid(),
+                    _MyCollectionGrid(),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _RarityChip extends StatelessWidget {
+class _CategoryChip extends StatelessWidget {
   final String label;
-  final String value;
-  final Color? color;
-  final bool selected;
-  final VoidCallback onSelected;
+  final String icon;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  const _RarityChip({
+  const _CategoryChip({
     required this.label,
-    required this.value,
-    this.color,
-    required this.selected,
-    required this.onSelected,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FilterChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onSelected(),
-      selectedColor: color?.withOpacity(0.2) ?? AppColors.grey200,
-      checkmarkColor: color ?? AppColors.grey700,
-      labelStyle: TextStyle(
-        color: selected ? (color ?? AppColors.grey700) : AppColors.grey600,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(50),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.oceanBlue : AppColors.white,
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.oceanBlue.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Text(icon, style: const TextStyle(fontSize: 14)),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? AppColors.white : AppColors.grey600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -166,53 +254,64 @@ class _RarityChip extends StatelessWidget {
 class _AllSpeciesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Sample data
     final species = [
       _SpeciesItem(
-        name: '클라운피쉬',
-        scientificName: 'Amphiprion ocellaris',
+        name: '흰동가리',
+        icon: '🐠',
         rarity: 'common',
-        imageIcon: Icons.catching_pokemon,
+        isCollected: true,
       ),
       _SpeciesItem(
         name: '노랑가오리',
-        scientificName: 'Taeniura lymma',
+        icon: '🦈',
         rarity: 'uncommon',
-        imageIcon: Icons.water,
+        isCollected: true,
       ),
       _SpeciesItem(
         name: '쥐가오리',
-        scientificName: 'Mobula birostris',
+        icon: '🐋',
         rarity: 'rare',
-        imageIcon: Icons.waves,
+        isCollected: false,
       ),
       _SpeciesItem(
         name: '고래상어',
-        scientificName: 'Rhincodon typus',
+        icon: '🦭',
         rarity: 'legendary',
-        imageIcon: Icons.sailing,
+        isCollected: false,
       ),
       _SpeciesItem(
         name: '바다거북',
-        scientificName: 'Cheloniidae',
+        icon: '🐢',
         rarity: 'uncommon',
-        imageIcon: Icons.shield,
+        isCollected: false,
       ),
       _SpeciesItem(
         name: '해파리',
-        scientificName: 'Aurelia aurita',
+        icon: '🪼',
         rarity: 'common',
-        imageIcon: Icons.blur_circular,
+        isCollected: true,
+      ),
+      _SpeciesItem(
+        name: '문어',
+        icon: '🐙',
+        rarity: 'common',
+        isCollected: false,
+      ),
+      _SpeciesItem(
+        name: '랍스터',
+        icon: '🦞',
+        rarity: 'uncommon',
+        isCollected: false,
       ),
     ];
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.85,
+        childAspectRatio: 0.9,
       ),
       itemCount: species.length,
       itemBuilder: (context, index) {
@@ -224,17 +323,15 @@ class _AllSpeciesGrid extends StatelessWidget {
 
 class _SpeciesItem {
   final String name;
-  final String scientificName;
+  final String icon;
   final String rarity;
-  final IconData imageIcon;
   final bool isCollected;
 
   _SpeciesItem({
     required this.name,
-    required this.scientificName,
+    required this.icon,
     required this.rarity,
-    required this.imageIcon,
-    this.isCollected = false,
+    required this.isCollected,
   });
 }
 
@@ -256,99 +353,109 @@ class _SpeciesCard extends StatelessWidget {
     }
   }
 
+  String get rarityLabel {
+    switch (species.rarity) {
+      case 'legendary':
+        return '전설';
+      case 'rare':
+        return '희귀';
+      case 'uncommon':
+        return '특별';
+      default:
+        return '일반';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: () => _showSpeciesDetail(context),
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image placeholder
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: rarityColor.withOpacity(0.1),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Icon(
-                        species.imageIcon,
-                        size: 64,
-                        color: rarityColor.withOpacity(0.5),
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: rarityColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                    if (species.isCollected)
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: AppColors.success,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.check,
-                            size: 12,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.oceanBlue.withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
-            ),
-            // Info
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: rarityColor.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Center(
+                      child: Text(
+                        species.icon,
+                        style: TextStyle(
+                          fontSize: 44,
+                          color: species.isCollected ? null : Colors.grey[400],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Text(
                     species.name,
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.grey800,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    species.scientificName,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontStyle: FontStyle.italic,
-                      color: AppColors.grey500,
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: rarityColor.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(50),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    child: Text(
+                      rarityLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: rarityColor,
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              if (species.isCollected)
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.ecoGreen, AppColors.lightGreen],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 14,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -363,7 +470,7 @@ class _SpeciesCard extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.7,
         decoration: const BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           children: [
@@ -382,23 +489,23 @@ class _SpeciesCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
                     Row(
                       children: [
                         Container(
-                          width: 80,
-                          height: 80,
+                          width: 100,
+                          height: 100,
                           decoration: BoxDecoration(
-                            color: rarityColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
+                            color: rarityColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(28),
                           ),
-                          child: Icon(
-                            species.imageIcon,
-                            size: 40,
-                            color: rarityColor,
+                          child: Center(
+                            child: Text(
+                              species.icon,
+                              style: const TextStyle(fontSize: 56),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,34 +513,35 @@ class _SpeciesCard extends StatelessWidget {
                               Text(
                                 species.name,
                                 style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.grey800,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                species.scientificName,
+                              const Text(
+                                'Amphiprion ocellaris',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontStyle: FontStyle.italic,
                                   color: AppColors.grey500,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 12),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                                  horizontal: 12,
+                                  vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
                                   color: rarityColor,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(50),
                                 ),
                                 child: Text(
-                                  species.rarity.toUpperCase(),
+                                  rarityLabel,
                                   style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
                                     color: AppColors.white,
                                   ),
                                 ),
@@ -443,63 +551,52 @@ class _SpeciesCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    const Divider(),
-                    const SizedBox(height: 24),
-
-                    // Description
+                    const SizedBox(height: 28),
                     const Text(
                       '설명',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.grey800,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '이 해양 생물에 대한 자세한 설명입니다. 서식지, 행동 패턴, 특징 등의 정보가 표시됩니다.',
+                    const Text(
+                      '산호초 주변에서 흔히 발견되는 아름다운 열대어입니다. 말미잘과 공생하며 살아가는 것으로 유명합니다.',
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.grey600,
-                        height: 1.5,
+                        height: 1.6,
                       ),
                     ),
                     const SizedBox(height: 24),
-
-                    // Stats
-                    const Text(
-                      '정보',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _InfoRow(label: '서식지', value: '산호초'),
-                    _InfoRow(label: '수심', value: '1-30m'),
-                    _InfoRow(label: '최대 크기', value: '25cm'),
-                    _InfoRow(label: '보전 상태', value: 'LC (관심 대상)'),
+                    _InfoGrid(),
                     const SizedBox(height: 24),
-
-                    // Sighting locations
-                    const Text(
-                      '주요 관찰 지역',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                    if (!species.isCollected)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.paleBlue,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('💡', style: TextStyle(fontSize: 24)),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'AI로 이 생물을 촬영하여 도감에 추가해보세요!',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.oceanBlue,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: ['제주도', '필리핀', '인도네시아', '몰디브']
-                          .map((location) => Chip(
-                                label: Text(location),
-                                backgroundColor: AppColors.grey100,
-                              ))
-                          .toList(),
-                    ),
                   ],
                 ),
               ),
@@ -511,33 +608,75 @@ class _SpeciesCard extends StatelessWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoRow({required this.label, required this.value});
-
+class _InfoGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.grey600,
-            ),
+          Row(
+            children: [
+              Expanded(child: _InfoItem(icon: '🏠', label: '서식지', value: '산호초')),
+              Expanded(child: _InfoItem(icon: '📏', label: '크기', value: '최대 11cm')),
+            ],
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-            ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _InfoItem(icon: '🌊', label: '수심', value: '1-15m')),
+              Expanded(child: _InfoItem(icon: '🛡️', label: '보전', value: 'LC')),
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _InfoItem extends StatelessWidget {
+  final String icon;
+  final String label;
+  final String value;
+
+  const _InfoItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(icon, style: const TextStyle(fontSize: 20)),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: AppColors.grey500,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.grey800,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -549,27 +688,38 @@ class _MyCollectionGrid extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.collections_bookmark_outlined,
-            size: 64,
-            color: AppColors.grey400,
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: AppColors.softOceanGradient,
+              borderRadius: BorderRadius.circular(36),
+            ),
+            child: const Center(
+              child: Text(
+                '🎣',
+                style: TextStyle(fontSize: 56),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             '아직 수집한 해양 생물이 없어요',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.grey600,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.grey700,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'AI로 해양 생물을 식별하여 도감을 채워보세요!',
+            'AI로 해양 생물을 식별하여\n도감을 채워보세요!',
             style: TextStyle(
               fontSize: 14,
               color: AppColors.grey500,
+              height: 1.5,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

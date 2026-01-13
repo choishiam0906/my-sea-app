@@ -14,79 +14,119 @@ class ProfilePage extends ConsumerWidget {
     final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // App Bar
-            SliverAppBar(
-              floating: true,
-              title: const Text('프로필'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.settings_outlined),
-                  onPressed: () => context.push(AppRoutes.settings),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppColors.skyGradient,
+        ),
+        child: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              // Custom App Bar
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        '프로필',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.grey800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      _AppBarIconButton(
+                        icon: Icons.settings_outlined,
+                        onTap: () => context.push(AppRoutes.settings),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-
-            // Content
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // Profile Header
-                  currentUser.when(
-                    data: (user) => _ProfileHeader(
-                      nickname: user?.nickname ?? 'Diver',
-                      email: user?.email ?? '',
-                      certLevel: user?.certLevel ?? 'Open Water',
-                      profileImageUrl: user?.profileImageUrl,
-                    ),
-                    loading: () => const _ProfileHeaderSkeleton(),
-                    error: (_, __) => const _ProfileHeader(
-                      nickname: 'Diver',
-                      email: '',
-                      certLevel: 'Open Water',
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Stats Cards
-                  currentUser.when(
-                    data: (user) => _StatsSection(
-                      totalDives: user?.totalDives ?? 0,
-                      leafPoints: user?.leafPoints ?? 0,
-                      speciesCount: user?.speciesCollected.length ?? 0,
-                      badgeCount: user?.badges.length ?? 0,
-                    ),
-                    loading: () => const _StatsSectionSkeleton(),
-                    error: (_, __) => const _StatsSection(
-                      totalDives: 0,
-                      leafPoints: 0,
-                      speciesCount: 0,
-                      badgeCount: 0,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Badges Section
-                  _SectionHeader(
-                    title: '배지',
-                    actionText: '전체보기',
-                    onAction: () {
-                      // TODO: Navigate to badges page
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _BadgesPreview(),
-                  const SizedBox(height: 24),
-
-                  // Menu Items
-                  _MenuSection(),
-                ]),
               ),
-            ),
-          ],
+
+              // Content
+              SliverPadding(
+                padding: const EdgeInsets.all(20),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Profile Header Card
+                    currentUser.when(
+                      data: (user) => _ProfileHeader(
+                        nickname: user?.nickname ?? '다이버',
+                        email: user?.email ?? '',
+                        certLevel: user?.certLevel ?? 'Open Water',
+                        profileImageUrl: user?.profileImageUrl,
+                      ),
+                      loading: () => const _ProfileHeaderSkeleton(),
+                      error: (_, __) => const _ProfileHeader(
+                        nickname: '다이버',
+                        email: '',
+                        certLevel: 'Open Water',
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Stats Cards
+                    currentUser.when(
+                      data: (user) => _StatsSection(
+                        totalDives: user?.totalDives ?? 0,
+                        leafPoints: user?.leafPoints ?? 0,
+                        speciesCount: user?.speciesCollected.length ?? 0,
+                        badgeCount: user?.badges.length ?? 0,
+                      ),
+                      loading: () => const _StatsSectionSkeleton(),
+                      error: (_, __) => const _StatsSection(
+                        totalDives: 0,
+                        leafPoints: 0,
+                        speciesCount: 0,
+                        badgeCount: 0,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Badges Section
+                    _SectionHeader(title: '배지'),
+                    const SizedBox(height: 12),
+                    _BadgesPreview(),
+                    const SizedBox(height: 24),
+
+                    // Menu Items
+                    _MenuSection(),
+                    const SizedBox(height: 100),
+                  ]),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AppBarIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _AppBarIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, size: 22, color: AppColors.grey700),
         ),
       ),
     );
@@ -109,49 +149,86 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: AppColors.oceanGradient,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: AppColors.deepOceanBlue.withOpacity(0.3),
-            blurRadius: 15,
+            color: AppColors.oceanBlue.withOpacity(0.1),
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
-          // Profile Image
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(40),
-              border: Border.all(color: AppColors.white, width: 3),
-            ),
-            child: profileImageUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Image.network(
-                      profileImageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(
-                        Icons.person,
-                        size: 40,
-                        color: AppColors.white,
-                      ),
+          // Profile Avatar
+          Stack(
+            children: [
+              Container(
+                width: 88,
+                height: 88,
+                decoration: BoxDecoration(
+                  gradient: AppColors.softOceanGradient,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: AppColors.white,
+                    width: 3,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.oceanBlue.withOpacity(0.2),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                  )
-                : const Icon(
-                    Icons.person,
-                    size: 40,
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: profileImageUrl != null
+                      ? Image.network(
+                          profileImageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Text(
+                              '🐬',
+                              style: TextStyle(fontSize: 40),
+                            ),
+                          ),
+                        )
+                      : const Center(
+                          child: Text(
+                            '🐬',
+                            style: TextStyle(fontSize: 40),
+                          ),
+                        ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.oceanBlue,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.white,
+                      width: 2,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.edit,
+                    size: 16,
                     color: AppColors.white,
                   ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,43 +237,45 @@ class _ProfileHeader extends StatelessWidget {
                   nickname,
                   style: const TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.white,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.grey800,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.white.withOpacity(0.8),
+                if (email.isNotEmpty)
+                  Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.grey500,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                    horizontal: 14,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(20),
+                    gradient: AppColors.softOceanGradient,
+                    borderRadius: BorderRadius.circular(50),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
                         Icons.card_membership,
-                        size: 14,
-                        color: AppColors.white,
+                        size: 16,
+                        color: AppColors.oceanBlue,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         certLevel,
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.oceanBlue,
                         ),
                       ),
                     ],
@@ -204,12 +283,6 @@ class _ProfileHeader extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit, color: AppColors.white),
-            onPressed: () {
-              // TODO: Edit profile
-            },
           ),
         ],
       ),
@@ -223,10 +296,10 @@ class _ProfileHeaderSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 140,
+      height: 150,
       decoration: BoxDecoration(
-        color: AppColors.grey200,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.white.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(28),
       ),
     );
   }
@@ -251,37 +324,45 @@ class _StatsSection extends StatelessWidget {
       children: [
         Expanded(
           child: _StatCard(
-            icon: Icons.scuba_diving,
+            icon: '🤿',
             label: '다이빙',
             value: '$totalDives',
-            color: AppColors.oceanBlue,
+            gradient: const LinearGradient(
+              colors: [AppColors.lightBlue, AppColors.skyBlue],
+            ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
-            icon: Icons.eco,
+            icon: '🌿',
             label: '나뭇잎',
             value: '$leafPoints',
-            color: AppColors.ecoGreen,
+            gradient: const LinearGradient(
+              colors: [AppColors.lightGreen, AppColors.ecoGreen],
+            ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
-            icon: Icons.catching_pokemon,
+            icon: '🐠',
             label: '도감',
             value: '$speciesCount',
-            color: AppColors.warning,
+            gradient: const LinearGradient(
+              colors: [AppColors.peach, AppColors.coral],
+            ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
-            icon: Icons.military_tech,
+            icon: '🏅',
             label: '배지',
             value: '$badgeCount',
-            color: AppColors.crewGold,
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFE082), Color(0xFFFFD54F)],
+            ),
           ),
         ),
       ],
@@ -298,11 +379,11 @@ class _StatsSectionSkeleton extends StatelessWidget {
       children: List.generate(4, (index) {
         return Expanded(
           child: Container(
-            height: 80,
+            height: 100,
             margin: EdgeInsets.only(right: index < 3 ? 12 : 0),
             decoration: BoxDecoration(
-              color: AppColors.grey200,
-              borderRadius: BorderRadius.circular(16),
+              color: AppColors.white.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(20),
             ),
           ),
         );
@@ -312,36 +393,56 @@ class _StatsSectionSkeleton extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final String value;
-  final Color color;
+  final Gradient gradient;
 
   const _StatCard({
     required this.icon,
     required this.label,
     required this.value,
-    required this.color,
+    required this.gradient,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.oceanBlue.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Center(
+              child: Text(
+                icon,
+                style: const TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: color,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: AppColors.grey800,
             ),
           ),
           const SizedBox(height: 2),
@@ -349,7 +450,8 @@ class _StatCard extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 11,
-              color: color,
+              fontWeight: FontWeight.w500,
+              color: AppColors.grey500,
             ),
           ),
         ],
@@ -360,32 +462,30 @@ class _StatCard extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  final String? actionText;
-  final VoidCallback? onAction;
 
-  const _SectionHeader({
-    required this.title,
-    this.actionText,
-    this.onAction,
-  });
+  const _SectionHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Container(
+          width: 4,
+          height: 20,
+          decoration: BoxDecoration(
+            color: AppColors.oceanBlue,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
             fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
+            color: AppColors.grey800,
           ),
         ),
-        if (actionText != null)
-          TextButton(
-            onPressed: onAction,
-            child: Text(actionText!),
-          ),
       ],
     );
   }
@@ -394,16 +494,16 @@ class _SectionHeader extends StatelessWidget {
 class _BadgesPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Sample badges data
     final badges = [
-      {'name': '첫 다이빙', 'icon': Icons.pool, 'earned': true},
-      {'name': '환경 지킴이', 'icon': Icons.eco, 'earned': true},
-      {'name': '야간 탐험가', 'icon': Icons.nightlight, 'earned': false},
-      {'name': '딥다이버', 'icon': Icons.arrow_downward, 'earned': false},
+      {'name': '첫 다이빙', 'icon': '🏊', 'earned': true},
+      {'name': '환경 지킴이', 'icon': '🌊', 'earned': true},
+      {'name': '야간 탐험가', 'icon': '🌙', 'earned': false},
+      {'name': '딥다이버', 'icon': '⬇️', 'earned': false},
+      {'name': '사진작가', 'icon': '📷', 'earned': false},
     ];
 
-    return SizedBox(
-      height: 100,
+    return Container(
+      height: 110,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: badges.length,
@@ -413,26 +513,41 @@ class _BadgesPreview extends StatelessWidget {
 
           return Container(
             width: 80,
-            margin: EdgeInsets.only(right: index < badges.length - 1 ? 12 : 0),
+            margin: EdgeInsets.only(right: 12),
             child: Column(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
                     color: earned
-                        ? AppColors.crewGold.withOpacity(0.2)
-                        : AppColors.grey200,
-                    borderRadius: BorderRadius.circular(28),
+                        ? AppColors.white
+                        : AppColors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: earned ? AppColors.crewGold : AppColors.grey300,
+                      color: earned
+                          ? AppColors.warning
+                          : AppColors.grey300,
                       width: 2,
                     ),
+                    boxShadow: earned
+                        ? [
+                            BoxShadow(
+                              color: AppColors.warning.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
                   ),
-                  child: Icon(
-                    badge['icon'] as IconData,
-                    color: earned ? AppColors.crewGold : AppColors.grey400,
-                    size: 24,
+                  child: Center(
+                    child: Text(
+                      badge['icon'] as String,
+                      style: TextStyle(
+                        fontSize: 28,
+                        color: earned ? null : Colors.grey,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -440,10 +555,11 @@ class _BadgesPreview extends StatelessWidget {
                   badge['name'] as String,
                   style: TextStyle(
                     fontSize: 11,
+                    fontWeight: FontWeight.w600,
                     color: earned ? AppColors.grey700 : AppColors.grey400,
                   ),
                   textAlign: TextAlign.center,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -461,49 +577,43 @@ class _MenuSection extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: AppColors.oceanBlue.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         children: [
           _MenuItem(
-            icon: Icons.card_membership,
+            icon: '💳',
             title: '자격증 지갑',
             onTap: () => context.push(AppRoutes.certWallet),
           ),
-          const Divider(height: 1),
+          _MenuDivider(),
           _MenuItem(
-            icon: Icons.history,
+            icon: '📊',
             title: '활동 기록',
-            onTap: () {
-              // TODO: Activity history
-            },
+            onTap: () {},
           ),
-          const Divider(height: 1),
+          _MenuDivider(),
           _MenuItem(
-            icon: Icons.notifications_outlined,
+            icon: '🔔',
             title: '알림 설정',
-            onTap: () {
-              // TODO: Notification settings
-            },
+            onTap: () {},
           ),
-          const Divider(height: 1),
+          _MenuDivider(),
           _MenuItem(
-            icon: Icons.help_outline,
+            icon: '❓',
             title: '도움말',
-            onTap: () {
-              // TODO: Help
-            },
+            onTap: () {},
           ),
-          const Divider(height: 1),
+          _MenuDivider(),
           _MenuItem(
-            icon: Icons.info_outline,
+            icon: 'ℹ️',
             title: '앱 정보',
             onTap: () {
               showAboutDialog(
@@ -521,7 +631,7 @@ class _MenuSection extends StatelessWidget {
 }
 
 class _MenuItem extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String title;
   final VoidCallback onTap;
 
@@ -533,11 +643,50 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.grey600),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.grey400),
-      onTap: onTap,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Text(
+                icon,
+                style: const TextStyle(fontSize: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.grey700,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.grey400,
+                size: 22,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      color: AppColors.grey200.withOpacity(0.5),
     );
   }
 }
