@@ -6,6 +6,7 @@ class AppColors {
   AppColors._();
 
   // Primary Colors - Soft Sky Blue Theme
+  static const Color primaryBlue = Color(0xFF5BB5E8);
   static const Color deepOceanBlue = Color(0xFF4A9BD9);
   static const Color oceanBlue = Color(0xFF5BB5E8);
   static const Color skyBlue = Color(0xFF7DD3FC);

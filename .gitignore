@@ -39,3 +39,5 @@
 # Environment
 .env
 .env.*
+
+.vercel

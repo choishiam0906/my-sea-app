@@ -64,7 +64,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Register with email and password
-  Future<void> registerWithEmail({
+  Future<bool> registerWithEmail({
     required String email,
     required String password,
     required String nickname,
@@ -77,17 +77,26 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
         data: {'nickname': nickname},
       );
 
-      // Create user profile in users table
+      // Check if email confirmation is required
+      final needsConfirmation = response.user?.emailConfirmedAt == null;
+
+      // Create user profile in users table (if user created)
       if (response.user != null) {
-        final user = UserModel(
-          uid: response.user!.id,
-          email: email,
-          nickname: nickname,
-        );
-        await _client.from('users').insert(user.toSupabase());
+        try {
+          final user = UserModel(
+            uid: response.user!.id,
+            email: email,
+            nickname: nickname,
+          );
+          await _client.from('users').upsert(user.toSupabase());
+        } catch (e) {
+          // Ignore if user profile already exists or RLS blocks it
+          // Profile will be created on first login via currentUserProvider
+        }
       }
 
       state = const AsyncValue.data(null);
+      return needsConfirmation;
     } on AuthException catch (e, st) {
       state = AsyncValue.error(e, st);
       rethrow;
