@@ -37,6 +37,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             _emailController.text.trim(),
             _passwordController.text,
           );
+
+      // Invalidate auth providers to force refresh
+      ref.invalidate(supabaseUserProvider);
+      ref.invalidate(currentUserProvider);
+
+      // Small delay to ensure auth state propagates
+      await Future.delayed(const Duration(milliseconds: 100));
+
       if (mounted) {
         context.go(AppRoutes.home);
       }

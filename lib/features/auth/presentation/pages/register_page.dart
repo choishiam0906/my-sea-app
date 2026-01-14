@@ -62,7 +62,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           // Show email confirmation dialog
           _showEmailConfirmationDialog();
         } else {
-          context.go(AppRoutes.home);
+          // Invalidate auth providers to force refresh
+          ref.invalidate(supabaseUserProvider);
+          ref.invalidate(currentUserProvider);
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (mounted) {
+            context.go(AppRoutes.home);
+          }
         }
       }
     } catch (e) {
