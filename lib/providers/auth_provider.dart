@@ -170,19 +170,35 @@ String getAuthErrorMessage(dynamic error) {
     if (message.contains('user not found') || message.contains('invalid login')) {
       return '이메일 또는 비밀번호가 올바르지 않습니다.';
     }
-    if (message.contains('email already')) {
-      return '이미 사용 중인 이메일입니다.';
+    if (message.contains('email already') || message.contains('already registered')) {
+      return '이미 가입된 이메일이에요. 로그인해주세요!';
     }
-    if (message.contains('password')) {
-      return '비밀번호가 너무 약합니다. 6자 이상 입력해주세요.';
+    if (message.contains('password') && !message.contains('invalid')) {
+      return '비밀번호가 너무 약해요. 6자 이상 입력해주세요.';
     }
     if (message.contains('invalid email')) {
-      return '올바른 이메일 형식이 아닙니다.';
+      return '올바른 이메일 형식이 아니에요.';
     }
-    if (message.contains('rate limit') || message.contains('too many')) {
-      return '너무 많은 요청이 있었습니다. 잠시 후 다시 시도해주세요.';
+    // Rate limiting / Security delay errors
+    if (message.contains('rate limit') ||
+        message.contains('too many') ||
+        message.contains('security purposes') ||
+        message.contains('after') && message.contains('seconds')) {
+      // Extract seconds from message if available
+      final secondsMatch = RegExp(r'(\d+)\s*seconds?').firstMatch(message);
+      if (secondsMatch != null) {
+        final seconds = secondsMatch.group(1);
+        return '보안을 위해 $seconds초 후에 다시 시도해주세요. 🔒';
+      }
+      return '잠시 후 다시 시도해주세요. 🔒';
     }
-    return '인증 오류가 발생했습니다: ${error.message}';
+    if (message.contains('email not confirmed')) {
+      return '이메일 인증이 필요해요. 받은편지함을 확인해주세요! 📧';
+    }
+    if (message.contains('invalid credentials') || message.contains('invalid login credentials')) {
+      return '이메일 또는 비밀번호가 올바르지 않아요.';
+    }
+    return '오류가 발생했어요: ${error.message}';
   }
-  return '오류가 발생했습니다: $error';
+  return '오류가 발생했어요. 다시 시도해주세요.';
 }
